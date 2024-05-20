@@ -1,0 +1,8 @@
+{
+  "login": {
+    "title": "Log In",
+    "caption": "Seras redirigido al inicio de sesión uniandes. Si la sesión ya ha sido iniciada previamente, ingresarás a Senecare",
+    "buttonText": "Log In con uniandes",
+    "footer": "Universidad de los Andes | Observada Apreciación del Ministerio de Educación como Universidad: Decreto 1927 del 30 de mayo de 1964. Apreciación legal del estado jurídico Resolución del Ministerio de Justicia del 28 de febrero de 1964. Si necesitas ayuda adicional, contáctanos en la línea: 57 1 3394949 Ext. 3333 o ingresa al Portal de Servicios y déjanos tu solicitud: missolicitudes.uniandes.edu.co Versión 2.1.1."
+  }
+}
