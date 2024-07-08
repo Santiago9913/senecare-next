@@ -1,12 +1,17 @@
-import { Button, Link, Typography } from "@mui/material";
+"use client";
 
-export default function SenecareDrawer({
-  profileName,
-  role,
-}: {
+import { Button, Link, Typography } from "@mui/material";
+import { redirect, usePathname, useRouter } from "next/navigation";
+
+interface DrawerProps {
   profileName: string;
   role: string;
-}) {
+}
+
+export default function SenecareDrawer({ profileName, role }: DrawerProps) {
+  const router = useRouter();
+  const pathName = usePathname();
+
   return (
     <div className="w-64 h-screen bg-white">
       <div className="flex flex-col h-full">
@@ -21,7 +26,10 @@ export default function SenecareDrawer({
               component={"button"}
               variant="subtitle2"
               textAlign="center"
-              underline="hover"
+              underline={pathName === "/dashboard" ? "always" : "none"}
+              onClick={() => {
+                router.replace("/dashboard");
+              }}
             >
               Buscar Pacientes
             </Link>
@@ -29,7 +37,10 @@ export default function SenecareDrawer({
               component={"button"}
               variant="subtitle2"
               textAlign="center"
-              underline="hover"
+              underline={pathName.includes("createPatient") ? "always" : "none"}
+              onClick={() => {
+                router.replace("/dashboard/createPatient");
+              }}
             >
               Crear Paciente
             </Link>
@@ -37,6 +48,9 @@ export default function SenecareDrawer({
         </div>
         <div className="place-content-end pb-4 px-4">
           <Button
+            onClick={() => {
+              router.replace("/");
+            }}
             variant="contained"
             fullWidth
             color={"error"}

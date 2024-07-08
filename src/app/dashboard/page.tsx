@@ -1,3 +1,7 @@
 export default function Dashboard() {
-  return <div className="bg-white">Hola</div>;
+  return (
+    <div className="bg-white h-full">
+      <div className="p-4"></div>
+    </div>
+  );
 }
