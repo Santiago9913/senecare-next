@@ -11,3 +11,33 @@ export interface IdType {
   name: string;
   abbreviation: string;
 }
+
+export interface CivilState {
+  id: string;
+  nombre: string;
+  readableName: string;
+}
+
+export interface CivilStateList {
+  civil_state: CivilState[];
+}
+
+export interface GenderIdentity {
+  id: string;
+  nombre: string;
+  readableName: string;
+}
+
+export interface GenderIdentityList {
+  gender_identity: GenderIdentity[];
+}
+
+export interface BiologicalSex {
+  id: string;
+  nombre: string;
+  readableName: string;
+}
+
+export interface BiologicalSexList {
+  Biological_sex: BiologicalSex[];
+}

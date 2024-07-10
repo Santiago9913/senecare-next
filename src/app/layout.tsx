@@ -11,6 +11,7 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import QueryProvider from "./_utils/queryProvider";
+import NextAuthProvider from "./_utils/nextAuthProvider";
 
 const fontSans = FontSans({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -38,9 +39,11 @@ export default async function RootLayout({
           fontSans.variable
         )}
       >
-        <NextIntlClientProvider messages={messages}>
-          <QueryProvider>{children}</QueryProvider>
-        </NextIntlClientProvider>
+        <NextAuthProvider>
+          <NextIntlClientProvider messages={messages}>
+            <QueryProvider>{children}</QueryProvider>
+          </NextIntlClientProvider>
+        </NextAuthProvider>
       </body>
     </html>
   );

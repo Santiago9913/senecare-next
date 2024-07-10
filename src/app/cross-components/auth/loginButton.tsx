@@ -1,25 +1,34 @@
 "use client";
 
-import { Button } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 import LogInIconButton from "./loginIconButton";
-import { signIn } from "next-auth/react";
+
+interface LogInButtonProps {
+  label: string;
+  onClick: () => void;
+  isLoading?: boolean;
+}
 
 export default function LogInButton({
   label,
   onClick,
-}: {
-  label: string;
-  onClick: () => void;
-}) {
+  isLoading = false,
+}: LogInButtonProps) {
   return (
     <Button
-      // onClick={() => signIn()}
       onClick={onClick}
       variant="contained"
       fullWidth
-      startIcon={<LogInIconButton />}
+      disabled={isLoading}
+      startIcon={isLoading ? null : <LogInIconButton />}
     >
-      {label}
+      <div className="min-h-6">
+        {isLoading ? (
+          <CircularProgress size={24} sx={{ position: "absolute" }} />
+        ) : (
+          label
+        )}
+      </div>
     </Button>
   );
 }

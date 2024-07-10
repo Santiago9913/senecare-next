@@ -1,9 +1,11 @@
 import { z } from "zod";
 
 export const createPatientFormSchema = z.object({
-  firstName: z.string().min(2),
+  firstName: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
   secondName: z.string().min(2).nullable(),
-  firstSurname: z.string().min(2),
+  firstSurname: z
+    .string()
+    .min(2, "El apellido debe tener al menos 2 caracteres"),
   secondSurname: z.string().nullable(),
   username: z.string().min(2),
   email: z

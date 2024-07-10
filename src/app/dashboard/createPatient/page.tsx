@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
-import { getCountries, getIdTypes } from "@/app/_utils/queries";
+
 import { useState } from "react";
 import {
   Popover,
@@ -33,6 +33,13 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
+import {
+  getBiologicalSex,
+  getCivilStates,
+  getCountries,
+  getGenderIdentities,
+  getIdTypes,
+} from "@/app/_utils/queries/createPatient";
 
 export default function CreatePatientView() {
   const form = useForm<z.infer<typeof createPatientFormSchema>>({
@@ -40,6 +47,9 @@ export default function CreatePatientView() {
   });
   const [isCountriesOpened, setIsCountriesOpened] = useState(false);
   const [isIdTyesOpened, setIsIdTypesOpened] = useState(false);
+  const [isCivilStatusOpened, setIsCivilStatusOpened] = useState(false);
+  const [isGenderIdentityOpened, setIsGenderIdentityOpened] = useState(false);
+  const [isBiologicalSexOpened, setIsBiologicalSexOpened] = useState(false);
 
   const countryQuery = useQuery({
     queryKey: ["countries"],
@@ -53,10 +63,33 @@ export default function CreatePatientView() {
     enabled: isIdTyesOpened,
   });
 
+  const civilStatesQuery = useQuery({
+    queryKey: ["civilStates"],
+    queryFn: getCivilStates,
+    enabled: isCivilStatusOpened,
+  });
+
+  const genderIdentitiesQuery = useQuery({
+    queryKey: ["genderIdentity"],
+    queryFn: getGenderIdentities,
+    enabled: isGenderIdentityOpened,
+  });
+
+  const biologicalSexQuery = useQuery({
+    queryKey: ["biologicalSex"],
+    queryFn: getBiologicalSex,
+    enabled: isBiologicalSexOpened,
+  });
+
+  const bloodTypes = ["A", "B", "AB", "O"];
+  const rhTypes = ["+", "-"];
+  const lateralityTypes = ["Diestro", "Zurdo"];
+
   return (
     <Form {...form}>
       <form className="space-y-8">
-        <div className="grid grid-cols-4 gap-4 p-4">
+        Datos Personales
+        <div className="grid grid-cols-3 gap-4 p-4">
           <div>
             <FormField
               control={form.control}
@@ -72,6 +105,7 @@ export default function CreatePatientView() {
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -165,7 +199,7 @@ export default function CreatePatientView() {
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                     onOpenChange={(isOpen) =>
-                      setIsCountriesOpened((prev) => isOpen)
+                      setIsCountriesOpened((_) => isOpen)
                     }
                   >
                     <FormControl>
@@ -203,7 +237,7 @@ export default function CreatePatientView() {
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                       onOpenChange={(isOpen) =>
-                        setIsIdTypesOpened((prev) => isOpen)
+                        setIsIdTypesOpened((_) => isOpen)
                       }
                     >
                       <FormControl>
@@ -297,6 +331,212 @@ export default function CreatePatientView() {
                     </PopoverContent>
                   </Popover>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div>
+            <FormField
+              control={form.control}
+              name="civilStatus"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Estado Civil</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    onOpenChange={(isOpen) =>
+                      setIsCivilStatusOpened((_) => isOpen)
+                    }
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Estado Civil" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {civilStatesQuery.status === "pending" ? (
+                        <div></div>
+                      ) : civilStatesQuery.status === "error" ? (
+                        <div>Error: {civilStatesQuery.error.message}</div>
+                      ) : (
+                        civilStatesQuery.data.map((civilState) => (
+                          <SelectItem
+                            key={civilState.id}
+                            value={civilState.nombre}
+                          >
+                            {civilState.readableName}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="flex space-x-4">
+            <div className="flex-1">
+              <FormField
+                control={form.control}
+                name="bloodType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Grupo Sanguíneo</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Grupo Sanguíneo" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {bloodTypes.map((bloodType, idx) => (
+                          <SelectItem key={idx + 1} value={bloodType}>
+                            {bloodType}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="flex-none w-16">
+              <FormField
+                control={form.control}
+                name="rh"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>RH</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="RH" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {rhTypes.map((rhType, idx) => (
+                          <SelectItem key={idx + 1} value={rhType}>
+                            {rhType}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+          <div>
+            <FormField
+              control={form.control}
+              name="gender"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Identidad de género</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    onOpenChange={(isOpen) =>
+                      setIsGenderIdentityOpened((_) => isOpen)
+                    }
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Identidad de género" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {genderIdentitiesQuery.status === "pending" ? (
+                        <div></div>
+                      ) : genderIdentitiesQuery.status === "error" ? (
+                        <div>Error: {genderIdentitiesQuery.error.message}</div>
+                      ) : (
+                        genderIdentitiesQuery.data.map((gender) => (
+                          <SelectItem key={gender.id} value={gender.nombre}>
+                            {gender.readableName}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+          </div>
+          <div>
+            <FormField
+              control={form.control}
+              name="biologicalSex"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Sexo biológico</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    onOpenChange={(isOpen) =>
+                      setIsBiologicalSexOpened((_) => isOpen)
+                    }
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sexo biológico" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {biologicalSexQuery.status === "pending" ? (
+                        <div></div>
+                      ) : biologicalSexQuery.status === "error" ? (
+                        <div>Error: {biologicalSexQuery.error.message}</div>
+                      ) : (
+                        biologicalSexQuery.data.map((biologicalSex) => (
+                          <SelectItem
+                            key={biologicalSex.id}
+                            value={biologicalSex.nombre}
+                          >
+                            {biologicalSex.readableName}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+          </div>
+          <div>
+            <FormField
+              control={form.control}
+              name="laterality"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Lateralidad</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    onOpenChange={(isOpen) =>
+                      setIsBiologicalSexOpened((_) => isOpen)
+                    }
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Lateralidad" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {lateralityTypes.map((laterality, idx) => (
+                        <SelectItem key={idx + 1} value={laterality}>
+                          {laterality}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </FormItem>
               )}
             />

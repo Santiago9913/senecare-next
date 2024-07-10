@@ -1,6 +1,7 @@
 "use client";
 
 import { Button, Link, Typography } from "@mui/material";
+import { signOut } from "next-auth/react";
 import { redirect, usePathname, useRouter } from "next/navigation";
 
 interface DrawerProps {
@@ -49,7 +50,9 @@ export default function SenecareDrawer({ profileName, role }: DrawerProps) {
         <div className="place-content-end pb-4 px-4">
           <Button
             onClick={() => {
-              router.replace("/");
+              signOut({
+                callbackUrl: "/",
+              });
             }}
             variant="contained"
             fullWidth
