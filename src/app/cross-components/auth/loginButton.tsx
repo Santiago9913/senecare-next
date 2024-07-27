@@ -1,6 +1,7 @@
 "use client";
 
 import { Button, CircularProgress } from "@mui/material";
+
 import LogInIconButton from "./loginIconButton";
 
 interface LogInButtonProps {

@@ -1,8 +1,8 @@
 "use client";
 
 import { Button, Link, Typography } from "@mui/material";
+import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { redirect, usePathname, useRouter } from "next/navigation";
 
 interface DrawerProps {
   profileName: string;
@@ -14,7 +14,7 @@ export default function SenecareDrawer({ profileName, role }: DrawerProps) {
   const pathName = usePathname();
 
   return (
-    <div className="w-64 h-screen bg-white">
+    <div className="w-52 h-dvh min-h-dvh max-h-dvh bg-white">
       <div className="flex flex-col h-full">
         <div className="">
           <Typography variant="h6" textAlign="center" mt={2}>

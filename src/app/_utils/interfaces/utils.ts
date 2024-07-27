@@ -44,3 +44,26 @@ export function translateBiologicalSexEnumToName(biologicalSex: string) {
       return "No lo declara";
   }
 }
+
+export function translateDiasabilityEnumToName(disability: string) {
+  switch (disability) {
+    case "Discapacidad_f_sica":
+      return "Discapacidad física";
+    case "Discapacidad_visual":
+      return "Discapacidad visual";
+    case "Discapacidad_auditiva":
+      return "Discapacidad auditiva";
+    case "Discapacidad_intelectual":
+      return "Discapacidad intelectual";
+    case "Discapacidad_sicosocial__mental_":
+      return "Discapacidad sicosocial (mental)";
+    case "Sordoceguera":
+      return "Sordoceguera";
+    case "Discapacidad_m_ltiple":
+      return "Discapacidad múltiple";
+    case "Sin_discapacidad":
+      return "Sin discapacidad";
+    default:
+      return "No aplica";
+  }
+}

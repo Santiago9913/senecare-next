@@ -41,3 +41,55 @@ export interface BiologicalSex {
 export interface BiologicalSexList {
   Biological_sex: BiologicalSex[];
 }
+
+export interface Department {
+  id: number;
+  name: string;
+  divipola_code: string;
+}
+
+export interface City {
+  id: number;
+  name: string;
+  divipola_code: string;
+  fk_department: number;
+}
+
+export interface Locality {
+  id: number;
+  locality_name: string;
+}
+
+export interface LocalityList {
+  locality: Locality[];
+}
+
+export interface HealthServiceProvider {
+  id: number;
+  name: string;
+}
+
+export interface HealthInsurancePolicy {
+  id: number;
+  name: string;
+}
+
+export interface UniversityLink {
+  id: number;
+  name: string;
+}
+
+export interface UniversityUnit {
+  id: number;
+  name: string;
+}
+
+export interface Disability {
+  id: number;
+  nombre: string;
+  readableName: string;
+}
+
+export interface DisabilityList {
+  Disability: Disability[];
+}

@@ -1,11 +1,12 @@
 "use client";
 
 import { Typography } from "@mui/material";
-import { useTranslations } from "next-intl";
 import { Session } from "next-auth";
 import { signIn } from "next-auth/react";
-import LogInButton from "./cross-components/auth/loginButton";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
+
+import LogInButton from "./cross-components/auth/loginButton";
 
 export default function Home({ session }: { session: Session }) {
   const t = useTranslations("login");
@@ -40,7 +41,7 @@ export default function Home({ session }: { session: Session }) {
           </footer>
         </div>
       </div>
-      <div className="flex-auto w-2/4 bg-[url('/seneca-background.jpeg')] min-h-full  bg-auto bg-no-repeat bg-center"></div>
+      <div className="flex-auto h-auto w-2/4 bg-[url('/seneca-background.jpeg')] min-h-full  bg-auto bg-no-repeat bg-center"></div>
     </main>
   );
 }

@@ -1,14 +1,24 @@
 import {
   BiologicalSexList,
+  City,
   CivilState,
   CivilStateList,
   Country,
+  Department,
+  Disability,
+  DisabilityList,
   GenderIdentityList,
+  HealthInsurancePolicy,
+  HealthServiceProvider,
   IdType,
+  Locality,
+  UniversityLink,
+  UniversityUnit,
 } from "../interfaces/common";
 import {
   translateBiologicalSexEnumToName,
   translateCivilStateEnumToName,
+  translateDiasabilityEnumToName,
   translateGenderIdentityEnumToName,
 } from "../interfaces/utils";
 import queryFunction from "../queyFunction";
@@ -70,4 +80,84 @@ export async function getBiologicalSex() {
   });
 
   return data.Biological_sex;
+}
+
+export async function getDepartments() {
+  const data: Department[] = await queryFunction<Department[]>({
+    method: "GET",
+    path: "Department",
+  });
+
+  return data;
+}
+
+export async function getCities(idDepartment: string | null) {
+  if (idDepartment === null) throw new Error("idDepartment is null");
+  const data: City[] = await queryFunction<City[]>({
+    method: "GET",
+    path: `town/department/${+idDepartment}`,
+  });
+
+  return data;
+}
+
+export async function getLocalities() {
+  const data: Locality[] = await queryFunction<Locality[]>({
+    method: "GET",
+    path: "locality",
+  });
+
+  return data;
+}
+
+export async function getHealthServiceProviders() {
+  const data: HealthServiceProvider[] = await queryFunction<
+    HealthServiceProvider[]
+  >({
+    method: "GET",
+    path: "health_services_provider",
+  });
+
+  return data;
+}
+
+export async function getHealthInsurancePolicy() {
+  const data: HealthInsurancePolicy[] = await queryFunction<
+    HealthInsurancePolicy[]
+  >({
+    method: "GET",
+    path: "health_insurance_policy",
+  });
+
+  return data;
+}
+
+export async function getUniversityLink() {
+  const data: UniversityLink[] = await queryFunction<UniversityLink[]>({
+    method: "GET",
+    path: "university_link",
+  });
+
+  return data;
+}
+
+export async function getUniversityUnit() {
+  const data: UniversityUnit[] = await queryFunction<UniversityUnit[]>({
+    method: "GET",
+    path: "unit",
+  });
+
+  return data;
+}
+
+export async function getDisabilities() {
+  const data: DisabilityList = await queryFunction<DisabilityList>({
+    method: "GET",
+    path: "disability/list",
+  });
+  data.Disability.forEach((disability) => {
+    disability.readableName = translateDiasabilityEnumToName(disability.nombre);
+  });
+
+  return data.Disability;
 }
