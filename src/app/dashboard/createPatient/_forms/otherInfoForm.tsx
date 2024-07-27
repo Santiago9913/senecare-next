@@ -1,6 +1,7 @@
 import {
   Autocomplete,
   FormControl,
+  FormHelperText,
   InputLabel,
   MenuItem,
   Select,
@@ -144,6 +145,11 @@ export function OtherInfoForm({
                 </MenuItem>
               ))}
             </Select>
+            {formState.errors.emergencyRelationship && (
+              <FormHelperText error>
+                {formState.errors.emergencyRelationship.message}
+              </FormHelperText>
+            )}
           </FormControl>
         </div>
       </div>
@@ -160,6 +166,7 @@ export function OtherInfoForm({
                 isOptionEqualToValue={(option, value) =>
                   option.name === value.name
                 }
+                onChange={(value) => field.onChange(value)}
                 onOpen={() => setIsHealthServiceProvidersOpen((_) => true)}
                 options={
                   healthServiceProvidersQuery.status === "success"
@@ -172,7 +179,13 @@ export function OtherInfoForm({
                 }}
                 loading={loadingHealthServiceProviders}
                 renderInput={(parms) => (
-                  <TextField {...parms} label="EPS" required />
+                  <TextField
+                    {...parms}
+                    label="EPS"
+                    required
+                    error={!!formState.errors.healthServiceProvider}
+                    helperText={formState.errors.healthServiceProvider?.message}
+                  />
                 )}
               />
             )}
@@ -192,6 +205,11 @@ export function OtherInfoForm({
                     </MenuItem>
                   ))}
                 </Select>
+                {formState.errors.healthRegime && (
+                  <FormHelperText error>
+                    {formState.errors.healthRegime.message}
+                  </FormHelperText>
+                )}
               </FormControl>
             </div>
             <div className="flex-1">
@@ -211,6 +229,11 @@ export function OtherInfoForm({
                     )
                   )}
                 </Select>
+                {formState.errors.additionalHealthServiceType && (
+                  <FormHelperText error>
+                    {formState.errors.additionalHealthServiceType.message}
+                  </FormHelperText>
+                )}
               </FormControl>
             </div>
           </div>
@@ -237,7 +260,12 @@ export function OtherInfoForm({
                 }}
                 loading={loadingHealthInsurancePolicy}
                 renderInput={(parms) => (
-                  <TextField {...parms} label="Entidad de salud adicional" />
+                  <TextField
+                    {...parms}
+                    label="Entidad de salud adicional"
+                    error={!!formState.errors.healthInsurancePolicy}
+                    helperText={formState.errors.healthInsurancePolicy?.message}
+                  />
                 )}
               />
             )}
@@ -272,6 +300,11 @@ export function OtherInfoForm({
                 ))
               )}
             </Select>
+            {formState.errors.universityLink && (
+              <FormHelperText error>
+                {formState.errors.universityLink.message}
+              </FormHelperText>
+            )}
           </FormControl>
           <Controller
             control={control}
@@ -296,7 +329,12 @@ export function OtherInfoForm({
                 }}
                 loading={loadingUniversityUnit}
                 renderInput={(parms) => (
-                  <TextField {...parms} label="Facultad/Dirección/Unidad" />
+                  <TextField
+                    {...parms}
+                    label="Facultad/Dirección/Unidad"
+                    error={!!formState.errors.universityUnit}
+                    helperText={formState.errors.universityUnit?.message}
+                  />
                 )}
               />
             )}
@@ -331,6 +369,11 @@ export function OtherInfoForm({
                 ))
               )}
             </Select>
+            {formState.errors.disability && (
+              <FormHelperText error>
+                {formState.errors.disability.message}
+              </FormHelperText>
+            )}
           </FormControl>
         </div>
       </div>

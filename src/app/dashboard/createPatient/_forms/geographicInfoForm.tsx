@@ -147,6 +147,11 @@ export function GeographicInfoForm({
               ))
             )}
           </Select>
+          {formState.errors.countryOfResidence && (
+            <FormHelperText error>
+              {formState.errors.countryOfResidence.message}
+            </FormHelperText>
+          )}
         </FormControl>
         <FormControl disabled={!shouldEnableColombianOptions}>
           <InputLabel>Departamento de residencia</InputLabel>
@@ -185,6 +190,11 @@ export function GeographicInfoForm({
               ))
             )}
           </Select>
+          {formState.errors.departmentOfResidence && (
+            <FormHelperText error>
+              {formState.errors.departmentOfResidence.message}
+            </FormHelperText>
+          )}
         </FormControl>
         <FormControl disabled={!shouldEnableCities}>
           <InputLabel>Municipio o ciudad de residencia</InputLabel>
@@ -207,6 +217,11 @@ export function GeographicInfoForm({
               ))
             )}
           </Select>
+          {formState.errors.cityOfResidence && (
+            <FormHelperText error>
+              {formState.errors.cityOfResidence.message}
+            </FormHelperText>
+          )}
         </FormControl>
         <FormControl required>
           <InputLabel>Zona territorial de residencia</InputLabel>
@@ -222,6 +237,11 @@ export function GeographicInfoForm({
               </MenuItem>
             ))}
           </Select>
+          {formState.errors.territorialZone && (
+            <FormHelperText error>
+              {formState.errors.territorialZone.message}
+            </FormHelperText>
+          )}
         </FormControl>
         <TextField
           label="Dirección de residencia"
@@ -258,6 +278,11 @@ export function GeographicInfoForm({
               ))
             )}
           </Select>
+          {formState.errors.locality && (
+            <FormHelperText error>
+              {formState.errors.locality.message}
+            </FormHelperText>
+          )}
         </FormControl>
         <FormControl>
           <InputLabel>Estrato socioeconómico</InputLabel>
@@ -273,6 +298,11 @@ export function GeographicInfoForm({
               </MenuItem>
             ))}
           </Select>
+          {formState.errors.economicalStatus && (
+            <FormHelperText error>
+              {formState.errors.economicalStatus.message}
+            </FormHelperText>
+          )}
         </FormControl>
         <FormControl required>
           <InputLabel>País de nacimiento</InputLabel>
@@ -307,6 +337,11 @@ export function GeographicInfoForm({
               ))
             )}
           </Select>
+          {formState.errors.countryOfBirth && (
+            <FormHelperText error>
+              {formState.errors.countryOfBirth.message}
+            </FormHelperText>
+          )}
         </FormControl>
         <FormControl disabled={!shouldEnableColombianOptionsBirth}>
           <InputLabel>Departamento de nacimiento</InputLabel>
@@ -345,6 +380,11 @@ export function GeographicInfoForm({
               ))
             )}
           </Select>
+          {formState.errors.departmentOfBirth && (
+            <FormHelperText error>
+              {formState.errors.departmentOfBirth.message}
+            </FormHelperText>
+          )}
         </FormControl>
         <FormControl disabled={!shouldEnableCitiesBirth}>
           <InputLabel>Municipio o ciudad de nacimiento</InputLabel>
@@ -367,6 +407,11 @@ export function GeographicInfoForm({
               ))
             )}
           </Select>
+          {formState.errors.cityOfBirth && (
+            <FormHelperText error>
+              {formState.errors.cityOfBirth.message}
+            </FormHelperText>
+          )}
         </FormControl>
         <FormControl required>
           <InputLabel>Zona territorial de nacimiento</InputLabel>
@@ -382,6 +427,11 @@ export function GeographicInfoForm({
               </MenuItem>
             ))}
           </Select>
+          {formState.errors.territorialZoneOfBirth && (
+            <FormHelperText error>
+              {formState.errors.territorialZoneOfBirth.message}
+            </FormHelperText>
+          )}
         </FormControl>
       </div>
     </div>

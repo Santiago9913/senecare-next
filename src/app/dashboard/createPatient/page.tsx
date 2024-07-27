@@ -47,7 +47,7 @@ export default function CreatePatientView() {
           resetField={resetField}
         />
       </div>
-      <div className="pb-8">
+      <div className="pb-4">
         <Button variant="contained" type="submit">
           Crear Paciente
         </Button>
