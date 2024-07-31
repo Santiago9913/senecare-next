@@ -1,5 +1,6 @@
 import {
   FormControl,
+  FormHelperText,
   InputLabel,
   MenuItem,
   Select,
@@ -33,7 +34,22 @@ export function PersonalInfoForm({
   register,
   formState,
   control,
+  watch,
 }: CreatePatientFormProps) {
+  const [
+    nationalityWatch,
+    idTypeWatch,
+    civilStatusWatch,
+    genderWatch,
+    biologicalSexWatch,
+  ] = watch!([
+    "fk_country_nationality",
+    "fk_type_document_number",
+    "civil_status",
+    "gender_identity",
+    "biological_sex",
+  ]);
+
   const [isCountriesOpened, setIsCountriesOpened] = useState(false);
   const [isIdTyesOpened, setIsIdTyesOpened] = useState(false);
   const [isCivilStatusOpened, setIsCivilStatusOpened] = useState(false);
@@ -80,42 +96,36 @@ export function PersonalInfoForm({
       <div className="grid grid-cols-3 gap-4 p-4">
         <TextField
           label="Primer Apellido"
-          defaultValue=""
-          {...register("firstSurname")}
-          error={!!formState.errors.firstSurname}
-          helperText={formState.errors.firstSurname?.message}
+          {...register("first_surname")}
+          error={!!formState.errors.first_surname}
+          helperText={formState.errors.first_surname?.message}
           required
         />
         <TextField
           label="Segundo Apellido"
-          defaultValue=""
-          {...register("secondSurname")}
-          error={!!formState.errors.secondSurname}
-          helperText={formState.errors.secondSurname?.message}
+          {...register("second_surname")}
+          error={!!formState.errors.second_surname}
+          helperText={formState.errors.second_surname?.message}
         />
         <TextField
           label="Primer Nombre"
-          defaultValue=""
-          {...register("firstName")}
-          error={!!formState.errors.firstName}
-          helperText={formState.errors.firstName?.message}
+          {...register("first_name")}
+          error={!!formState.errors.first_name}
+          helperText={formState.errors.first_name?.message}
           required
         />
         <TextField
           label="Segundo Nombre"
-          defaultValue=""
-          {...register("secondName")}
-          error={!!formState.errors.secondName}
-          helperText={formState.errors.secondName?.message}
+          {...register("middle_name")}
+          error={!!formState.errors.middle_name}
+          helperText={formState.errors.middle_name?.message}
         />
         <TextField
           label="Usuario Uniandes"
-          defaultValue=""
-          {...register("username")}
-          error={!!formState.errors.username}
-          helperText={formState.errors.username?.message}
+          {...register("user_uniandes")}
+          error={!!formState.errors.user_uniandes}
+          helperText={formState.errors.user_uniandes?.message}
         />
-
         <TextField
           type="email"
           label="Correo"
@@ -127,10 +137,10 @@ export function PersonalInfoForm({
         <FormControl required>
           <InputLabel>Nacionalidad</InputLabel>
           <Select
-            defaultValue=""
+            value={nationalityWatch?.toString() ?? ""}
             label="Nacionalidad"
-            error={!!formState.errors.nationality}
-            {...register("nationality")}
+            {...register("fk_country_nationality")}
+            error={!!formState.errors.fk_country_nationality}
             onOpen={() => {
               setIsCountriesOpened((_) => true);
             }}
@@ -144,22 +154,27 @@ export function PersonalInfoForm({
               <div>Error: {countryQuery.error.message}</div>
             ) : (
               countryQuery.data.map((country: Country) => (
-                <MenuItem key={country.id} value={country.name}>
+                <MenuItem key={country.id} value={country.id}>
                   {country.name}
                 </MenuItem>
               ))
             )}
           </Select>
+          {formState.errors.fk_country_nationality && (
+            <FormHelperText error>
+              {formState.errors.fk_country_nationality.message}
+            </FormHelperText>
+          )}
         </FormControl>
         <div className="flex space-x-4">
           <div className="flex-none w-28">
             <FormControl fullWidth required>
               <InputLabel>Tipo ID</InputLabel>
               <Select
-                defaultValue=""
+                value={idTypeWatch ?? ""}
                 label="Tipo ID"
-                error={!!formState.errors.idType}
-                {...register("idType")}
+                {...register("fk_type_document_number")}
+                error={!!formState.errors.fk_type_document_number}
                 onOpen={() => {
                   setIsIdTyesOpened((_) => true);
                 }}
@@ -173,12 +188,17 @@ export function PersonalInfoForm({
                   <div>Error: {idTypeQuery.error.message}</div>
                 ) : (
                   idTypeQuery.data.map((idType: IdType) => (
-                    <MenuItem key={idType.id} value={idType.abbreviation}>
+                    <MenuItem key={idType.id} value={idType.id}>
                       {idType.abbreviation}
                     </MenuItem>
                   ))
                 )}
               </Select>
+              {formState.errors.fk_type_document_number && (
+                <FormHelperText error>
+                  {formState.errors.fk_type_document_number.message}
+                </FormHelperText>
+              )}
             </FormControl>
           </div>
           <div className="flex-1">
@@ -188,26 +208,25 @@ export function PersonalInfoForm({
               fullWidth
               label="Número ID"
               defaultValue=""
-              {...register("idNumber")}
-              error={!!formState.errors.idNumber}
-              helperText={formState.errors.idNumber?.message}
+              {...register("id_number")}
+              error={!!formState.errors.id_number}
+              helperText={formState.errors.id_number?.message}
             />
           </div>
         </div>
         <TextField
           required
           label="Celular"
-          defaultValue=""
-          {...register("phoneNumber")}
-          error={!!formState.errors.phoneNumber}
-          helperText={formState.errors.phoneNumber?.message}
+          {...register("cellphone_number")}
+          error={!!formState.errors.cellphone_number}
+          helperText={formState.errors.cellphone_number?.message}
           InputProps={{
             inputComponent: PhoneNumberMask as any,
           }}
         />
         <Controller
           control={control}
-          name="birthDate"
+          name="birth_date"
           render={({ field }) => (
             <DatePicker
               maxDate={DateTime.now()}
@@ -223,10 +242,10 @@ export function PersonalInfoForm({
         <FormControl required>
           <InputLabel>Estado civil</InputLabel>
           <Select
-            defaultValue=""
-            error={!!formState.errors.civilStatus}
+            value={civilStatusWatch ?? ""}
             label="Estado Civil"
-            {...register("civilStatus")}
+            {...register("civil_status")}
+            error={!!formState.errors.civil_status}
             onOpen={() => {
               setIsCivilStatusOpened((_) => true);
             }}
@@ -240,7 +259,7 @@ export function PersonalInfoForm({
               <div>Error: {civilStatesQuery.error.message}</div>
             ) : (
               civilStatesQuery.data.map((civilState: CivilState) => (
-                <MenuItem key={civilState.id} value={civilState.readableName}>
+                <MenuItem key={civilState.id} value={civilState.nombre}>
                   {civilState.readableName}
                 </MenuItem>
               ))
@@ -254,8 +273,8 @@ export function PersonalInfoForm({
               <Select
                 defaultValue=""
                 label="Grupo Sanguineo"
-                error={!!formState.errors.bloodType}
-                {...register("bloodType")}
+                error={!!formState.errors.abotype}
+                {...register("abotype")}
               >
                 {bloodTypes.map((bloodType, idx) => (
                   <MenuItem key={idx + 1} value={bloodType}>
@@ -286,10 +305,10 @@ export function PersonalInfoForm({
         <FormControl required>
           <InputLabel>Identidad de género</InputLabel>
           <Select
-            defaultValue=""
+            value={genderWatch ?? ""}
             label="Identidad de género"
-            error={!!formState.errors.gender}
-            {...register("gender")}
+            {...register("gender_identity")}
+            error={!!formState.errors.gender_identity}
             onOpen={() => {
               setIsGenderIdentityOpened((_) => true);
             }}
@@ -313,10 +332,10 @@ export function PersonalInfoForm({
         <FormControl required>
           <InputLabel>Sexo biológico</InputLabel>
           <Select
-            defaultValue=""
+            value={biologicalSexWatch ?? ""}
             label="Sexo biológico"
-            error={!!formState.errors.biologicalSex}
-            {...register("biologicalSex")}
+            {...register("biological_sex")}
+            error={!!formState.errors.biological_sex}
             onOpen={() => {
               setIsBiologicalSexOpened((_) => true);
             }}

@@ -28,6 +28,8 @@ export default function CreatePatientView() {
         register={register}
         formState={formState}
         control={control}
+        watch={watch}
+        resetField={resetField}
       />
       <div>
         <GeographicInfoForm

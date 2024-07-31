@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
   City,
@@ -28,7 +28,6 @@ import {
 export function GeographicInfoForm({
   register,
   formState,
-  control,
   watch,
   resetField,
 }: CreatePatientFormProps) {
@@ -41,31 +40,38 @@ export function GeographicInfoForm({
     departmentOfBirth,
     cityOfBirth,
   ] = watch!([
-    "countryOfResidence",
-    "departmentOfResidence",
-    "cityOfResidence",
-    "locality",
-    "countryOfBirth",
-    "departmentOfBirth",
-    "cityOfBirth",
+    "fk_country_residence_habitual",
+    "fk_department_of_residence",
+    "town_or_city_residence",
+    "fk_locality",
+    "fk_country_birth",
+    "fk_department_of_birth",
+    "town_or_city_birth",
   ]);
 
-  const countryOfResidenceRegister = register("countryOfResidence");
-  const departmentOfResidenceRegister = register("departmentOfResidence");
-  const countryOfBirthRegister = register("countryOfBirth");
-  const departmentOfBirthRegister = register("departmentOfBirth");
+  const countryOfResidenceRegister = register("fk_country_residence_habitual");
+  const departmentOfResidenceRegister = register("fk_department_of_residence");
+  const cityOfResidenceRegister = register("town_or_city_residence");
+  const countryOfBirthRegister = register("fk_country_birth");
+  const departmentOfBirthRegister = register("fk_department_of_birth");
 
   const [isCountryOfResidenceOpened, setIsCountryOfResidenceOpened] =
     useState(false);
+  const [isCountryOfBirthOpened, setIsCountryOfBirthOpened] = useState(false);
 
   const [isDepartmentOfResidenceOpened, setIsDepartmentOfResidenceOpened] =
     useState(false);
+  const [isDepartmentOfBirthOpened, setIsDepartmentOfBirthOpened] =
+    useState(false);
 
-  const shouldEnableColombianOptions = countryOfResidence === "Colombia";
+  const [isCityOfResidenceOpened, setIsCityOfResidenceOpened] = useState(false);
+  const [isCityOfBirthOpened, setIsCityOfBirthOpened] = useState(false);
+
+  const shouldEnableColombianOptions = Number(countryOfResidence) === 1;
   const shouldEnableCities =
     shouldEnableColombianOptions && !!departmentOfResidence;
 
-  const shouldEnableColombianOptionsBirth = countryOfBirth === "Colombia";
+  const shouldEnableColombianOptionsBirth = Number(countryOfBirth) === 1;
   const shouldEnableCitiesBirth =
     shouldEnableColombianOptionsBirth && !!departmentOfBirth;
 
@@ -74,31 +80,31 @@ export function GeographicInfoForm({
   const countryQuery = useQuery({
     queryKey: ["countries"],
     queryFn: getCountries,
-    enabled: isCountryOfResidenceOpened,
+    enabled: isCountryOfResidenceOpened || isCountryOfBirthOpened,
   });
 
   const departmentQuery = useQuery({
     queryKey: ["departments"],
     queryFn: getDepartments,
     enabled:
-      isDepartmentOfResidenceOpened &&
+      (isDepartmentOfResidenceOpened || isDepartmentOfBirthOpened) &&
       (shouldEnableColombianOptions || shouldEnableColombianOptionsBirth),
   });
 
   const citiesQuery = useQuery({
     queryKey: ["cities", departmentOfResidence],
     queryFn: () => {
-      return getCities(departmentOfResidence);
+      return getCities(departmentOfResidence!);
     },
-    enabled: shouldEnableCities,
+    enabled: isCityOfResidenceOpened && shouldEnableColombianOptions,
   });
 
-  const citiesOfBirthQuery = useQuery({
-    queryKey: ["citiesBirth", departmentOfBirth],
+  const citiesBirthQuery = useQuery({
+    queryKey: ["cities", departmentOfBirth],
     queryFn: () => {
-      return getCities(departmentOfBirth);
+      return getCities(departmentOfBirth!);
     },
-    enabled: shouldEnableCitiesBirth,
+    enabled: isCityOfBirthOpened && shouldEnableColombianOptionsBirth,
   });
 
   const loacalitiesQuery = useQuery({
@@ -117,7 +123,7 @@ export function GeographicInfoForm({
         <FormControl required>
           <InputLabel>País de residencia</InputLabel>
           <Select
-            defaultValue={""}
+            value={countryOfResidence?.toString() ?? ""}
             {...countryOfResidenceRegister}
             label="País de residencia"
             onOpen={() => {
@@ -129,11 +135,12 @@ export function GeographicInfoForm({
             onChange={(event: SelectChangeEvent) => {
               countryOfResidenceRegister.onChange(event);
               const country = event.target.value;
-              if (country !== "Colombia" && departmentOfResidence) {
-                resetField!("departmentOfResidence");
+              if (country !== "1" && departmentOfResidence) {
+                resetField!("fk_department_of_residence");
+                resetField!("town_or_city_residence");
               }
             }}
-            error={!!formState.errors.countryOfResidence}
+            error={!!formState.errors.fk_country_residence_habitual}
           >
             {countryQuery.status === "pending" ? (
               <div></div>
@@ -141,26 +148,30 @@ export function GeographicInfoForm({
               <div>Error: {countryQuery.error.message}</div>
             ) : (
               countryQuery.data.map((country: Country) => (
-                <MenuItem key={country.id} value={country.name}>
+                <MenuItem key={country.id} value={country.id}>
                   {country.name}
                 </MenuItem>
               ))
             )}
           </Select>
-          {formState.errors.countryOfResidence && (
+          {formState.errors.fk_country_residence_habitual && (
             <FormHelperText error>
-              {formState.errors.countryOfResidence.message}
+              {formState.errors.fk_country_residence_habitual.message}
             </FormHelperText>
           )}
         </FormControl>
-        <FormControl disabled={!shouldEnableColombianOptions}>
+        <FormControl
+          disabled={!shouldEnableColombianOptions}
+          required={shouldEnableColombianOptions}
+          aria-hidden={!shouldEnableColombianOptions}
+        >
           <InputLabel>Departamento de residencia</InputLabel>
           <Select
-            defaultValue={""}
-            value={departmentOfResidence ? departmentOfResidence : ""}
-            error={!!formState.errors.departmentOfResidence}
+            type="number"
+            value={departmentOfResidence?.toString() ?? ""}
+            error={!!formState.errors.fk_department_of_residence}
             label="Departamento de residencia"
-            {...register("departmentOfResidence")}
+            {...departmentOfResidenceRegister}
             onOpen={() => {
               setIsDepartmentOfResidenceOpened((_) => true);
             }}
@@ -171,10 +182,12 @@ export function GeographicInfoForm({
               departmentOfResidenceRegister.onChange(event);
               if (
                 departmentOfResidence &&
-                departmentOfResidence !== event.target.value &&
+                (departmentOfResidence?.toString() ?? "") !==
+                  event.target.value &&
                 cityOfResidence
               ) {
-                resetField!("cityOfResidence");
+                resetField("town_or_city_residence");
+                resetField("fk_locality");
               }
             }}
           >
@@ -184,26 +197,36 @@ export function GeographicInfoForm({
               <div>Error: {departmentQuery.error.message}</div>
             ) : (
               departmentQuery.data.map((department: Department) => (
-                <MenuItem key={department.id} value={department.id}>
+                <MenuItem key={department.id} value={department.id?.toString()}>
                   {department.name}
                 </MenuItem>
               ))
             )}
           </Select>
-          {formState.errors.departmentOfResidence && (
+          {formState.errors.fk_department_of_residence && (
             <FormHelperText error>
-              {formState.errors.departmentOfResidence.message}
+              {formState.errors.fk_department_of_residence.message}
             </FormHelperText>
           )}
         </FormControl>
-        <FormControl disabled={!shouldEnableCities}>
+        <FormControl
+          disabled={!shouldEnableCities}
+          required={shouldEnableColombianOptions}
+          aria-hidden={!shouldEnableCities}
+        >
           <InputLabel>Municipio o ciudad de residencia</InputLabel>
           <Select
-            defaultValue={""}
-            error={!!formState.errors.cityOfResidence}
-            value={cityOfResidence ? cityOfResidence : ""}
+            type="number"
+            {...cityOfResidenceRegister}
+            value={cityOfResidence ?? ""}
+            error={!!formState.errors.town_or_city_residence}
             label="Municipio o ciudad de residencia"
-            {...register("cityOfResidence")}
+            onOpen={() => {
+              setIsCityOfResidenceOpened((_) => true);
+            }}
+            onClose={() => {
+              setIsCityOfResidenceOpened((_) => false);
+            }}
           >
             {citiesQuery.status === "pending" ? (
               <div></div>
@@ -211,15 +234,15 @@ export function GeographicInfoForm({
               <div>Error: {citiesQuery.error.message}</div>
             ) : (
               citiesQuery.data.map((city: City) => (
-                <MenuItem key={city.id} value={city.id}>
+                <MenuItem key={city.id} value={city.id?.toString()}>
                   {city.name}
                 </MenuItem>
               ))
             )}
           </Select>
-          {formState.errors.cityOfResidence && (
+          {formState.errors.town_or_city_residence && (
             <FormHelperText error>
-              {formState.errors.cityOfResidence.message}
+              {formState.errors.town_or_city_residence.message}
             </FormHelperText>
           )}
         </FormControl>
@@ -227,9 +250,9 @@ export function GeographicInfoForm({
           <InputLabel>Zona territorial de residencia</InputLabel>
           <Select
             defaultValue={""}
-            error={!!formState.errors.territorialZone}
+            error={!!formState.errors.territorial_zone_residence}
             label="Zona territorial de residencia"
-            {...register("territorialZone")}
+            {...register("territorial_zone_residence")}
           >
             {territorialZones.map((zone: string, idx: number) => (
               <MenuItem key={idx + 1} value={zone}>
@@ -237,18 +260,18 @@ export function GeographicInfoForm({
               </MenuItem>
             ))}
           </Select>
-          {formState.errors.territorialZone && (
+          {formState.errors.territorial_zone_residence && (
             <FormHelperText error>
-              {formState.errors.territorialZone.message}
+              {formState.errors.territorial_zone_residence.message}
             </FormHelperText>
           )}
         </FormControl>
         <TextField
           label="Dirección de residencia"
-          {...register("addressOfResidence")}
+          {...register("residence_address")}
           required
-          error={!!formState.errors.addressOfResidence}
-          helperText={formState.errors.addressOfResidence?.message}
+          error={!!formState.errors.residence_address}
+          helperText={formState.errors.residence_address?.message}
         />
         <TextField
           label="Barrio de residencia"
@@ -257,14 +280,17 @@ export function GeographicInfoForm({
           error={!!formState.errors.neighborhood}
           helperText={formState.errors.neighborhood?.message}
         />
-        <FormControl disabled={!shouldEnableLocalities}>
+        <FormControl
+          disabled={!shouldEnableLocalities}
+          required={shouldEnableLocalities}
+          aria-hidden={!shouldEnableLocalities}
+        >
           <InputLabel>Localidad</InputLabel>
           <Select
-            defaultValue={""}
-            error={!!formState.errors.locality}
-            value={locality ? locality : ""}
+            error={!!formState.errors.fk_locality}
+            value={locality ?? ""}
             label="Localidad"
-            {...register("locality")}
+            {...register("fk_locality")}
           >
             {loacalitiesQuery.status === "pending" ? (
               <div></div>
@@ -278,9 +304,9 @@ export function GeographicInfoForm({
               ))
             )}
           </Select>
-          {formState.errors.locality && (
+          {formState.errors.fk_locality && (
             <FormHelperText error>
-              {formState.errors.locality.message}
+              {formState.errors.fk_locality.message}
             </FormHelperText>
           )}
         </FormControl>
@@ -288,9 +314,9 @@ export function GeographicInfoForm({
           <InputLabel>Estrato socioeconómico</InputLabel>
           <Select
             defaultValue={""}
-            error={!!formState.errors.economicalStatus}
+            error={!!formState.errors.socioeconomic_level}
             label="Estrato socioeconómico"
-            {...register("economicalStatus")}
+            {...register("socioeconomic_level", { valueAsNumber: true })}
           >
             {economicalStatus.map((economicalStatus: number) => (
               <MenuItem key={economicalStatus} value={economicalStatus}>
@@ -298,30 +324,31 @@ export function GeographicInfoForm({
               </MenuItem>
             ))}
           </Select>
-          {formState.errors.economicalStatus && (
+          {formState.errors.socioeconomic_level && (
             <FormHelperText error>
-              {formState.errors.economicalStatus.message}
+              {formState.errors.socioeconomic_level.message}
             </FormHelperText>
           )}
         </FormControl>
         <FormControl required>
           <InputLabel>País de nacimiento</InputLabel>
           <Select
+            type="number"
             defaultValue={""}
             {...countryOfBirthRegister}
-            error={!!formState.errors.countryOfBirth}
+            error={!!formState.errors.fk_country_birth}
             label="País de nacimiento"
             onOpen={() => {
-              setIsCountryOfResidenceOpened((_) => true);
+              setIsCountryOfBirthOpened((_) => true);
             }}
             onClose={() => {
-              setIsCountryOfResidenceOpened((_) => false);
+              setIsCountryOfBirthOpened((_) => false);
             }}
             onChange={(event: SelectChangeEvent) => {
               countryOfBirthRegister.onChange(event);
               const country = event.target.value;
-              if (country !== "Colombia" && departmentOfBirth) {
-                resetField!("departmentOfBirth");
+              if (country !== "1" && departmentOfBirth) {
+                resetField!("fk_department_of_birth");
               }
             }}
           >
@@ -331,40 +358,39 @@ export function GeographicInfoForm({
               <div>Error: {countryQuery.error.message}</div>
             ) : (
               countryQuery.data.map((country: Country) => (
-                <MenuItem key={country.id} value={country.name}>
+                <MenuItem key={country.id} value={country.id?.toString()}>
                   {country.name}
                 </MenuItem>
               ))
             )}
           </Select>
-          {formState.errors.countryOfBirth && (
+          {formState.errors.fk_country_birth && (
             <FormHelperText error>
-              {formState.errors.countryOfBirth.message}
+              {formState.errors.fk_country_birth.message}
             </FormHelperText>
           )}
         </FormControl>
         <FormControl disabled={!shouldEnableColombianOptionsBirth}>
           <InputLabel>Departamento de nacimiento</InputLabel>
           <Select
-            defaultValue={""}
-            error={!!formState.errors.departmentOfBirth}
-            value={departmentOfBirth ? departmentOfBirth : ""}
+            error={!!formState.errors.fk_department_of_birth}
+            value={departmentOfBirth?.toString() ?? ""}
             label="Departamento de nacimiento"
-            {...register("departmentOfBirth")}
+            {...register("fk_department_of_birth")}
             onOpen={() => {
-              setIsDepartmentOfResidenceOpened((_) => true);
+              setIsDepartmentOfBirthOpened((_) => true);
             }}
             onClose={() => {
-              setIsDepartmentOfResidenceOpened((_) => false);
+              setIsDepartmentOfBirthOpened((_) => false);
             }}
             onChange={(event: SelectChangeEvent) => {
               departmentOfBirthRegister.onChange(event);
               if (
                 departmentOfBirth &&
-                departmentOfBirth !== event.target.value &&
+                departmentOfBirth?.toString() !== event.target.value &&
                 cityOfBirth
               ) {
-                resetField!("cityOfBirth");
+                resetField!("town_or_city_birth");
               }
             }}
           >
@@ -380,36 +406,41 @@ export function GeographicInfoForm({
               ))
             )}
           </Select>
-          {formState.errors.departmentOfBirth && (
+          {formState.errors.fk_department_of_birth && (
             <FormHelperText error>
-              {formState.errors.departmentOfBirth.message}
+              {formState.errors.fk_department_of_birth.message}
             </FormHelperText>
           )}
         </FormControl>
         <FormControl disabled={!shouldEnableCitiesBirth}>
           <InputLabel>Municipio o ciudad de nacimiento</InputLabel>
           <Select
-            defaultValue={""}
-            error={!!formState.errors.cityOfBirth}
-            value={cityOfBirth ? cityOfBirth : ""}
+            error={!!formState.errors.town_or_city_birth}
+            value={cityOfBirth ?? ""}
             label="Municipio o ciudad de residencia"
-            {...register("cityOfBirth")}
+            {...register("town_or_city_birth")}
+            onOpen={() => {
+              setIsCityOfBirthOpened((_) => true);
+            }}
+            onClose={() => {
+              setIsCityOfBirthOpened((_) => false);
+            }}
           >
-            {citiesOfBirthQuery.status === "pending" ? (
+            {citiesBirthQuery.status === "pending" ? (
               <div></div>
-            ) : citiesOfBirthQuery.status === "error" ? (
-              <div>Error: {citiesOfBirthQuery.error.message}</div>
+            ) : citiesBirthQuery.status === "error" ? (
+              <div>Error: {citiesBirthQuery.error.message}</div>
             ) : (
-              citiesOfBirthQuery.data.map((city: City) => (
+              citiesBirthQuery.data.map((city: City) => (
                 <MenuItem key={city.id} value={city.id}>
                   {city.name}
                 </MenuItem>
               ))
             )}
           </Select>
-          {formState.errors.cityOfBirth && (
+          {formState.errors.town_or_city_birth && (
             <FormHelperText error>
-              {formState.errors.cityOfBirth.message}
+              {formState.errors.town_or_city_birth.message}
             </FormHelperText>
           )}
         </FormControl>
@@ -417,9 +448,9 @@ export function GeographicInfoForm({
           <InputLabel>Zona territorial de nacimiento</InputLabel>
           <Select
             defaultValue={""}
-            error={!!formState.errors.territorialZoneOfBirth}
+            error={!!formState.errors.birth_territorial_zone}
             label="Zona territorial de nacimiento"
-            {...register("territorialZoneOfBirth")}
+            {...register("birth_territorial_zone")}
           >
             {territorialZones.map((zone: string, idx: number) => (
               <MenuItem key={idx + 1} value={zone}>
@@ -427,9 +458,9 @@ export function GeographicInfoForm({
               </MenuItem>
             ))}
           </Select>
-          {formState.errors.territorialZoneOfBirth && (
+          {formState.errors.birth_territorial_zone && (
             <FormHelperText error>
-              {formState.errors.territorialZoneOfBirth.message}
+              {formState.errors.birth_territorial_zone.message}
             </FormHelperText>
           )}
         </FormControl>

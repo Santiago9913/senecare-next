@@ -91,11 +91,11 @@ export async function getDepartments() {
   return data;
 }
 
-export async function getCities(idDepartment: string | null) {
+export async function getCities(idDepartment: number | null) {
   if (idDepartment === null) throw new Error("idDepartment is null");
   const data: City[] = await queryFunction<City[]>({
     method: "GET",
-    path: `town/department/${+idDepartment}`,
+    path: `town/department/${idDepartment}`,
   });
 
   return data;

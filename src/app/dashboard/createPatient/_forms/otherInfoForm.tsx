@@ -34,7 +34,22 @@ export function OtherInfoForm({
   formState,
   control,
   watch,
+  resetField,
 }: CreatePatientFormProps) {
+  const [
+    additionalHealthServiceTypeWatch,
+    disabilityWatch,
+    healthInsurancePolicyWatch,
+  ] = watch([
+    "additional_health_service_type",
+    "disability",
+    "fk_health_insurance_policy",
+  ]);
+
+  const additionalHealthServiceTypeRegister = register(
+    "additional_health_service_type"
+  );
+
   const [isHealthServiceProvidersOpen, setIsHealthServiceProvidersOpen] =
     useState(false);
   const [isHealthInsurancePolicyOpen, setIsHealthInsurancePolicyOpen] =
@@ -72,6 +87,14 @@ export function OtherInfoForm({
     queryFn: getDisabilities,
     enabled: isDisabilityOpen,
   });
+
+  const healthInsurancePolicyValue = healthInsurancePolicyQuery.data?.find(
+    (e) => e.id === healthInsurancePolicyWatch
+  );
+
+  const disableAdditionalHealthServiceType =
+    additionalHealthServiceTypeWatch === "Ninguno" ||
+    additionalHealthServiceTypeWatch === undefined;
 
   const emergencyRelationships = ["Familiar", "Pareja", "Amigo", "Otro"];
   const healthRegimes = [
@@ -118,26 +141,26 @@ export function OtherInfoForm({
           <TextField
             required
             label="Nombre completo"
-            {...register("emergencyContactName")}
-            error={!!formState.errors.emergencyContactName}
-            helperText={formState.errors.emergencyContactName?.message}
+            {...register("emergency_contact_name")}
+            error={!!formState.errors.emergency_contact_name}
+            helperText={formState.errors.emergency_contact_name?.message}
           />
           <TextField
             required
             label="Celular"
-            {...register("emergencyContactPhoneNumber")}
-            error={!!formState.errors.emergencyContactPhoneNumber}
-            helperText={formState.errors.emergencyContactPhoneNumber?.message}
+            {...register("emergency_contact_number")}
+            error={!!formState.errors.emergency_contact_number}
+            helperText={formState.errors.emergency_contact_number?.message}
             InputProps={{
               inputComponent: PhoneNumberMask as any,
             }}
           />
           <FormControl required>
-            <InputLabel>Estado civil</InputLabel>
+            <InputLabel>Parentesco</InputLabel>
             <Select
               defaultValue=""
               label="Prentesco"
-              {...register("emergencyRelationship")}
+              {...register("emergency_contact_relationship")}
             >
               {emergencyRelationships.map((relation: string, idx: number) => (
                 <MenuItem key={idx + 1} value={relation}>
@@ -145,9 +168,9 @@ export function OtherInfoForm({
                 </MenuItem>
               ))}
             </Select>
-            {formState.errors.emergencyRelationship && (
+            {formState.errors.emergency_contact_relationship && (
               <FormHelperText error>
-                {formState.errors.emergencyRelationship.message}
+                {formState.errors.emergency_contact_relationship.message}
               </FormHelperText>
             )}
           </FormControl>
@@ -158,21 +181,18 @@ export function OtherInfoForm({
         <div className="grid grid-cols-3 gap-4 p-4">
           <Controller
             control={control}
-            name="healthServiceProvider"
+            name="fk_health_services_provider"
             render={({ field }) => (
               <Autocomplete
                 clearOnEscape
                 clearOnBlur
-                isOptionEqualToValue={(option, value) =>
-                  option.name === value.name
-                }
-                onChange={(value) => field.onChange(value)}
+                autoHighlight
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                onChange={(e, value) => {
+                  field.onChange(value?.id);
+                }}
                 onOpen={() => setIsHealthServiceProvidersOpen((_) => true)}
-                options={
-                  healthServiceProvidersQuery.status === "success"
-                    ? healthServiceProviders
-                    : []
-                }
+                options={healthServiceProviders}
                 getOptionLabel={(option: string | HealthServiceProvider) => {
                   if (typeof option === "string") return option;
                   return option.name;
@@ -183,8 +203,10 @@ export function OtherInfoForm({
                     {...parms}
                     label="EPS"
                     required
-                    error={!!formState.errors.healthServiceProvider}
-                    helperText={formState.errors.healthServiceProvider?.message}
+                    error={!!formState.errors.fk_health_services_provider}
+                    helperText={
+                      formState.errors.fk_health_services_provider?.message
+                    }
                   />
                 )}
               />
@@ -197,7 +219,7 @@ export function OtherInfoForm({
                 <Select
                   defaultValue=""
                   label="Régimen de salud"
-                  {...register("healthRegime")}
+                  {...register("regimen")}
                 >
                   {healthRegimes.map((regime: string, idx: number) => (
                     <MenuItem key={idx + 1} value={regime}>
@@ -205,9 +227,9 @@ export function OtherInfoForm({
                     </MenuItem>
                   ))}
                 </Select>
-                {formState.errors.healthRegime && (
+                {formState.errors.regimen && (
                   <FormHelperText error>
-                    {formState.errors.healthRegime.message}
+                    {formState.errors.regimen.message}
                   </FormHelperText>
                 )}
               </FormControl>
@@ -217,9 +239,22 @@ export function OtherInfoForm({
                 <InputLabel>Tipo de entidad de salud adicional</InputLabel>
                 <Select
                   required
-                  defaultValue=""
+                  value={additionalHealthServiceTypeWatch ?? ""}
                   label="Tipo de entidad de salud adicional"
-                  {...register("additionalHealthServiceType")}
+                  {...additionalHealthServiceTypeRegister}
+                  onOpen={() => {
+                    return true;
+                  }}
+                  onClose={() => {
+                    return false;
+                  }}
+                  onChange={(e) => {
+                    additionalHealthServiceTypeRegister.onChange(e);
+                    console.log(e.target.value);
+                    if (e.target.value === "Ninguno") {
+                      resetField("fk_health_insurance_policy");
+                    }
+                  }}
                 >
                   {additionalHealthServiceTypes.map(
                     (regime: string, idx: number) => (
@@ -229,31 +264,34 @@ export function OtherInfoForm({
                     )
                   )}
                 </Select>
-                {formState.errors.additionalHealthServiceType && (
+                {formState.errors.additional_health_service_type && (
                   <FormHelperText error>
-                    {formState.errors.additionalHealthServiceType.message}
+                    {formState.errors.additional_health_service_type.message}
                   </FormHelperText>
                 )}
               </FormControl>
             </div>
           </div>
           <Controller
+            disabled={disableAdditionalHealthServiceType}
             control={control}
-            name="healthInsurancePolicy"
+            name="fk_health_insurance_policy"
             render={({ field }) => (
               <Autocomplete
+                disabled={disableAdditionalHealthServiceType}
                 clearOnEscape
                 clearOnBlur
-                isOptionEqualToValue={(option, value) =>
-                  option.name === value.name
-                }
+                isOptionEqualToValue={(option, value) => {
+                  if (typeof value === "string") return false;
+                  if (typeof option === "string") return false;
+                  return option.name === value.name;
+                }}
+                onChange={(_, value) => {
+                  field.onChange(value?.id);
+                }}
                 onOpen={() => setIsHealthInsurancePolicyOpen((_) => true)}
                 onClose={() => setIsHealthInsurancePolicyOpen((_) => false)}
-                options={
-                  healthInsurancePolicyQuery.status === "success"
-                    ? healthInsurancePolicy
-                    : []
-                }
+                options={healthInsurancePolicy}
                 getOptionLabel={(option: string | HealthInsurancePolicy) => {
                   if (typeof option === "string") return option;
                   return option.name;
@@ -263,8 +301,10 @@ export function OtherInfoForm({
                   <TextField
                     {...parms}
                     label="Entidad de salud adicional"
-                    error={!!formState.errors.healthInsurancePolicy}
-                    helperText={formState.errors.healthInsurancePolicy?.message}
+                    error={!!formState.errors.fk_health_insurance_policy}
+                    helperText={
+                      formState.errors.fk_health_insurance_policy?.message
+                    }
                   />
                 )}
               />
@@ -280,7 +320,7 @@ export function OtherInfoForm({
             <Select
               defaultValue=""
               label="Vínculo con la universidad"
-              {...register("universityLink")}
+              {...register("fk_university_link")}
               onOpen={() => {
                 setIsUniversityLinkOpen((_) => true);
               }}
@@ -294,21 +334,21 @@ export function OtherInfoForm({
                 <div>Error: {universityLinkQuery.error.message}</div>
               ) : (
                 universityLinkQuery.data.map((link: UniversityLink) => (
-                  <MenuItem key={link.id} value={link.name}>
+                  <MenuItem key={link.id} value={link.id}>
                     {link.name}
                   </MenuItem>
                 ))
               )}
             </Select>
-            {formState.errors.universityLink && (
+            {formState.errors.fk_university_link && (
               <FormHelperText error>
-                {formState.errors.universityLink.message}
+                {formState.errors.fk_university_link.message}
               </FormHelperText>
             )}
           </FormControl>
           <Controller
             control={control}
-            name="universityUnit"
+            name="fk_unit"
             render={({ field }) => (
               <Autocomplete
                 clearOnEscape
@@ -316,6 +356,7 @@ export function OtherInfoForm({
                 isOptionEqualToValue={(option, value) =>
                   option.name === value.name
                 }
+                onChange={(_, value) => field.onChange(value?.id)}
                 onOpen={() => setIsUniversityUnitOpen((_) => true)}
                 onClose={() => setIsUniversityUnitOpen((_) => false)}
                 options={
@@ -332,8 +373,8 @@ export function OtherInfoForm({
                   <TextField
                     {...parms}
                     label="Facultad/Dirección/Unidad"
-                    error={!!formState.errors.universityUnit}
-                    helperText={formState.errors.universityUnit?.message}
+                    error={!!formState.errors.fk_unit}
+                    helperText={formState.errors.fk_unit?.message}
                   />
                 )}
               />
@@ -347,8 +388,8 @@ export function OtherInfoForm({
           <FormControl required>
             <InputLabel>Discapacidad</InputLabel>
             <Select
-              defaultValue=""
               label="Discapacidad"
+              value={disabilityWatch ?? ""}
               {...register("disability")}
               onOpen={() => {
                 setIsDisabilityOpen((_) => true);
