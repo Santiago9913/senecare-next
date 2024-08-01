@@ -20,6 +20,7 @@ import {
   Country,
   GenderIdentity,
   IdType,
+  SexualOrientation,
 } from "@/app/_utils/interfaces/common";
 import { CreatePatientFormProps } from "@/app/_utils/interfaces/forms";
 import {
@@ -28,6 +29,7 @@ import {
   getCountries,
   getGenderIdentities,
   getIdTypes,
+  getSexualOrientations,
 } from "@/app/_utils/queries/createPatient";
 
 export function PersonalInfoForm({
@@ -55,6 +57,8 @@ export function PersonalInfoForm({
   const [isCivilStatusOpened, setIsCivilStatusOpened] = useState(false);
   const [isGenderIdentityOpened, setIsGenderIdentityOpened] = useState(false);
   const [isBiologicalSexOpened, setIsBiologicalSexOpened] = useState(false);
+  const [isSexualOrientationsOpened, setIsSexualOrientationsOpened] =
+    useState(false);
 
   const countryQuery = useQuery({
     queryKey: ["countries"],
@@ -84,6 +88,12 @@ export function PersonalInfoForm({
     queryKey: ["biologicalSex"],
     queryFn: getBiologicalSex,
     enabled: isBiologicalSexOpened,
+  });
+
+  const sexualOrientationsQuery = useQuery({
+    queryKey: ["sexualOrientations"],
+    queryFn: getSexualOrientations,
+    enabled: isSexualOrientationsOpened,
   });
 
   const bloodTypes = ["A", "B", "AB", "O"];
@@ -353,6 +363,35 @@ export function PersonalInfoForm({
                   {biologicalSex.readableName}
                 </MenuItem>
               ))
+            )}
+          </Select>
+        </FormControl>
+        <FormControl fullWidth required>
+          <InputLabel>Orientación Sexual</InputLabel>
+          <Select
+            defaultValue=""
+            {...register("sexual_orientation")}
+            label="Orientación Sexual"
+            onOpen={() => {
+              setIsSexualOrientationsOpened((_) => true);
+            }}
+            onClose={() => {
+              setIsSexualOrientationsOpened((_) => false);
+            }}
+            error={!!formState.errors.sexual_orientation}
+          >
+            {sexualOrientationsQuery.status === "pending" ? (
+              <div></div>
+            ) : sexualOrientationsQuery.status === "error" ? (
+              <div>Error: {sexualOrientationsQuery.error.message}</div>
+            ) : (
+              sexualOrientationsQuery.data.map(
+                (biologicalSex: SexualOrientation) => (
+                  <MenuItem key={biologicalSex.id} value={biologicalSex.nombre}>
+                    {biologicalSex.nombre}
+                  </MenuItem>
+                )
+              )
             )}
           </Select>
         </FormControl>

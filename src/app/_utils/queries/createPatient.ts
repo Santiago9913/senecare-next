@@ -1,3 +1,7 @@
+import { AxiosResponse } from "axios";
+
+import { CreatePatientSchema } from "@/app/dashboard/createPatient/schema";
+
 import {
   BiologicalSexList,
   City,
@@ -12,6 +16,8 @@ import {
   HealthServiceProvider,
   IdType,
   Locality,
+  SexualOrientation,
+  SexualOrientationList,
   UniversityLink,
   UniversityUnit,
 } from "../interfaces/common";
@@ -160,4 +166,22 @@ export async function getDisabilities() {
   });
 
   return data.Disability;
+}
+
+export async function getSexualOrientations() {
+  const data: SexualOrientationList =
+    await queryFunction<SexualOrientationList>({
+      method: "GET",
+      path: "sexual_orientation/list",
+    });
+
+  return data.Sexual_orientation;
+}
+
+export async function createPatient(data: CreatePatientSchema) {
+  return queryFunction<AxiosResponse>({
+    method: "POST",
+    path: "patient",
+    data,
+  });
 }

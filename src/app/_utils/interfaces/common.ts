@@ -93,3 +93,12 @@ export interface Disability {
 export interface DisabilityList {
   Disability: Disability[];
 }
+
+export interface SexualOrientation {
+  id: number;
+  nombre: string;
+}
+
+export interface SexualOrientationList {
+  Sexual_orientation: SexualOrientation[];
+}

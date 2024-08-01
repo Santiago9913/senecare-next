@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Controller } from "react-hook-form";
 
 import { PhoneNumberMask } from "@/app/_utils/formatters/cellPhoneFormatter";
@@ -40,15 +40,21 @@ export function OtherInfoForm({
     additionalHealthServiceTypeWatch,
     disabilityWatch,
     healthInsurancePolicyWatch,
+    universityLinkWatch,
+    universityUnitWatch,
   ] = watch([
     "additional_health_service_type",
     "disability",
     "fk_health_insurance_policy",
+    "fk_university_link",
+    "fk_unit",
   ]);
 
   const additionalHealthServiceTypeRegister = register(
     "additional_health_service_type"
   );
+
+  const universityLinkRegister = register("fk_university_link");
 
   const [isHealthServiceProvidersOpen, setIsHealthServiceProvidersOpen] =
     useState(false);
@@ -57,6 +63,11 @@ export function OtherInfoForm({
   const [isUniversityLinkOpen, setIsUniversityLinkOpen] = useState(false);
   const [isUniversityUnitOpen, setIsUniversityUnitOpen] = useState(false);
   const [isDisabilityOpen, setIsDisabilityOpen] = useState(false);
+
+  const [universityUnitInputValue, setUniversityUnitInputValue] =
+    useState<string>("");
+  const [healthInsurancePolicyInputValue, setHealthInsurancePolicyInputValue] =
+    useState<string>("");
 
   const healthServiceProvidersQuery = useQuery({
     queryKey: ["healthServiceProviders"],
@@ -88,13 +99,13 @@ export function OtherInfoForm({
     enabled: isDisabilityOpen,
   });
 
-  const healthInsurancePolicyValue = healthInsurancePolicyQuery.data?.find(
-    (e) => e.id === healthInsurancePolicyWatch
-  );
-
   const disableAdditionalHealthServiceType =
     additionalHealthServiceTypeWatch === "Ninguno" ||
+    additionalHealthServiceTypeWatch === "Otra" ||
     additionalHealthServiceTypeWatch === undefined;
+
+  const disableUniversityUnit =
+    universityLinkWatch === 8 || universityLinkWatch === undefined;
 
   const emergencyRelationships = ["Familiar", "Pareja", "Amigo", "Otro"];
   const healthRegimes = [
@@ -132,6 +143,14 @@ export function OtherInfoForm({
 
   const universityUnits: readonly UniversityUnit[] =
     universityUnitQuery.status === "success" ? universityUnitQuery.data : [];
+
+  const selectedHealthInsurancePolicy = healthInsurancePolicy.find(
+    (e) => e.id === healthInsurancePolicyWatch
+  );
+
+  const selectedUniversityUnit = universityUnits.find(
+    (e) => e.id === universityUnitWatch
+  );
 
   return (
     <div className="space-y-8">
@@ -202,7 +221,6 @@ export function OtherInfoForm({
                   <TextField
                     {...parms}
                     label="EPS"
-                    required
                     error={!!formState.errors.fk_health_services_provider}
                     helperText={
                       formState.errors.fk_health_services_provider?.message
@@ -239,18 +257,11 @@ export function OtherInfoForm({
                 <InputLabel>Tipo de entidad de salud adicional</InputLabel>
                 <Select
                   required
-                  value={additionalHealthServiceTypeWatch ?? ""}
                   label="Tipo de entidad de salud adicional"
                   {...additionalHealthServiceTypeRegister}
-                  onOpen={() => {
-                    return true;
-                  }}
-                  onClose={() => {
-                    return false;
-                  }}
+                  value={additionalHealthServiceTypeWatch ?? ""}
                   onChange={(e) => {
                     additionalHealthServiceTypeRegister.onChange(e);
-                    console.log(e.target.value);
                     if (e.target.value === "Ninguno") {
                       resetField("fk_health_insurance_policy");
                     }
@@ -286,7 +297,13 @@ export function OtherInfoForm({
                   if (typeof option === "string") return false;
                   return option.name === value.name;
                 }}
+                inputValue={healthInsurancePolicyInputValue}
+                onInputChange={(_, value) =>
+                  setHealthInsurancePolicyInputValue((_) => value)
+                }
+                value={selectedHealthInsurancePolicy ?? null}
                 onChange={(_, value) => {
+                  if (typeof value === "string") return;
                   field.onChange(value?.id);
                 }}
                 onOpen={() => setIsHealthInsurancePolicyOpen((_) => true)}
@@ -299,6 +316,7 @@ export function OtherInfoForm({
                 loading={loadingHealthInsurancePolicy}
                 renderInput={(parms) => (
                   <TextField
+                    required={!disableAdditionalHealthServiceType}
                     {...parms}
                     label="Entidad de salud adicional"
                     error={!!formState.errors.fk_health_insurance_policy}
@@ -320,12 +338,19 @@ export function OtherInfoForm({
             <Select
               defaultValue=""
               label="Vínculo con la universidad"
-              {...register("fk_university_link")}
+              {...universityLinkRegister}
               onOpen={() => {
                 setIsUniversityLinkOpen((_) => true);
               }}
               onClose={() => {
                 setIsUniversityLinkOpen((_) => false);
+              }}
+              onChange={(e) => {
+                universityLinkRegister.onChange(e);
+                // 8 is the id of the option "Otro"
+                if (e.target.value === "8") {
+                  resetField("fk_unit");
+                }
               }}
             >
               {universityLinkQuery.status === "pending" ? (
@@ -356,14 +381,14 @@ export function OtherInfoForm({
                 isOptionEqualToValue={(option, value) =>
                   option.name === value.name
                 }
+                inputValue={universityUnitInputValue ?? ""}
+                onInputChange={(_, value) => {
+                  setUniversityUnitInputValue((_) => value);
+                }}
                 onChange={(_, value) => field.onChange(value?.id)}
                 onOpen={() => setIsUniversityUnitOpen((_) => true)}
                 onClose={() => setIsUniversityUnitOpen((_) => false)}
-                options={
-                  universityUnitQuery.status === "success"
-                    ? universityUnits
-                    : []
-                }
+                options={universityUnits}
                 getOptionLabel={(option: string | UniversityUnit) => {
                   if (typeof option === "string") return option;
                   return option.name;

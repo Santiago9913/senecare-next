@@ -1,25 +1,59 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+
+import { createPatient } from "@/app/_utils/queries/createPatient";
+import { SenecareButton } from "@/app/cross-components/buttons/button";
+import { AlertSnackbar } from "@/app/cross-components/feedback/alertSnackbar";
 
 import { GeographicInfoForm } from "./_forms/geographicInfoForm";
 import { OtherInfoForm } from "./_forms/otherInfoForm";
 import { PersonalInfoForm } from "./_forms/personalInfoForm";
-import { createPatientFormSchema } from "./utils";
+import { createPatientFormSchema } from "./schema";
+import type { CreatePatientSchema } from "./schema";
 
 export default function CreatePatientView() {
-  const form = useForm<z.infer<typeof createPatientFormSchema>>({
+  const snackBarDuration = 3000;
+
+  const router = useRouter();
+
+  const [severity, setSeverity] = useState<"success" | "error">("success");
+  const [message, setMessage] = useState<string>("");
+  const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false);
+
+  const form = useForm<CreatePatientSchema>({
     resolver: zodResolver(createPatientFormSchema),
+  });
+
+  const createPatientMutation = useMutation({
+    mutationFn: createPatient,
+    onError: (error, _, __) => {
+      setSeverity((_) => "error");
+      setMessage((_) => `Error al crear el paciente. ${error.message}`);
+      setIsAlertOpen((_) => true);
+    },
+    onSuccess: () => {
+      setSeverity((_) => "success");
+      setMessage(
+        (_) => "Paciente creado exitosamente. Redirigiendo al dashboard..."
+      );
+      setIsAlertOpen((_) => true);
+      setTimeout(() => {
+        router.replace("/dashboard");
+      }, snackBarDuration);
+    },
   });
 
   const { register, formState, control, watch, resetField, handleSubmit } =
     form;
 
-  const onSubmit = (data: z.infer<typeof createPatientFormSchema>) => {
+  const onSubmit = (data: CreatePatientSchema) => {
     console.log(data);
+    createPatientMutation.mutate(data);
   };
 
   return (
@@ -50,10 +84,21 @@ export default function CreatePatientView() {
         />
       </div>
       <div className="pb-4">
-        <Button variant="contained" type="submit">
-          Crear Paciente
-        </Button>
+        <SenecareButton
+          text="Crear Paciente"
+          variant="contained"
+          type="submit"
+          disabled={createPatientMutation.isSuccess}
+          isLoading={createPatientMutation.isPending}
+        />
       </div>
+      <AlertSnackbar
+        open={isAlertOpen}
+        severity={severity}
+        autoHideDuration={snackBarDuration}
+        message={message}
+        onClose={() => setIsAlertOpen(false)}
+      />
     </form>
   );
 }

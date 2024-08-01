@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 interface QueryProps {
   path: string;
@@ -23,6 +23,11 @@ async function queryFunction<T>({
     });
     return response.data;
   } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.data.message) {
+        throw new Error(error.response.data.message);
+      }
+    }
     throw new Error("Data could not be fetched.");
   }
 }

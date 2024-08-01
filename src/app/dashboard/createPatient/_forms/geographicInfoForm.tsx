@@ -234,7 +234,7 @@ export function GeographicInfoForm({
               <div>Error: {citiesQuery.error.message}</div>
             ) : (
               citiesQuery.data.map((city: City) => (
-                <MenuItem key={city.id} value={city.id?.toString()}>
+                <MenuItem key={city.id} value={city.name}>
                   {city.name}
                 </MenuItem>
               ))
@@ -417,7 +417,7 @@ export function GeographicInfoForm({
           <Select
             error={!!formState.errors.town_or_city_birth}
             value={cityOfBirth ?? ""}
-            label="Municipio o ciudad de residencia"
+            label="Municipio o ciudad de nacimiento"
             {...register("town_or_city_birth")}
             onOpen={() => {
               setIsCityOfBirthOpened((_) => true);
@@ -432,7 +432,7 @@ export function GeographicInfoForm({
               <div>Error: {citiesBirthQuery.error.message}</div>
             ) : (
               citiesBirthQuery.data.map((city: City) => (
-                <MenuItem key={city.id} value={city.id}>
+                <MenuItem key={city.id} value={city.name}>
                   {city.name}
                 </MenuItem>
               ))

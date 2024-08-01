@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export type CreatePatientSchema = z.infer<typeof createPatientFormSchema>;
+
 export const createPatientFormSchema = z.object({
   first_name: z
     .string()
@@ -46,6 +48,7 @@ export const createPatientFormSchema = z.object({
     "No_lo_declara",
   ]),
   biological_sex: z.enum(["Hombre", "Mujer", "Indeterminado_intersexual"]),
+  sexual_orientation: z.string(),
   laterality: z
     .enum(["Diestro", "Zurdo"])
     .transform((x) => (x === "Diestro" ? true : false)),
@@ -54,8 +57,8 @@ export const createPatientFormSchema = z.object({
     .number()
     .nullish()
     .transform((x) => x ?? null),
-  town_or_city_residence: z.coerce
-    .number()
+  town_or_city_residence: z
+    .string()
     .nullish()
     .transform((x) => x ?? null),
   territorial_zone_residence: z.enum(["Urbana", "Rural"]),
@@ -71,8 +74,8 @@ export const createPatientFormSchema = z.object({
     .number()
     .nullish()
     .transform((x) => x ?? null),
-  town_or_city_birth: z.coerce
-    .number()
+  town_or_city_birth: z
+    .string()
     .nullish()
     .transform((x) => x ?? null),
   birth_territorial_zone: z.enum(["Urbana", "Rural"]),
@@ -102,7 +105,10 @@ export const createPatientFormSchema = z.object({
     .nullish()
     .transform((x) => x ?? null),
   fk_university_link: z.coerce.number(),
-  fk_unit: z.coerce.number(),
+  fk_unit: z.coerce
+    .number()
+    .nullish()
+    .transform((x) => x ?? null),
   disability: z.enum([
     "Discapacidad_f_sica",
     "Discapacidad_visual",

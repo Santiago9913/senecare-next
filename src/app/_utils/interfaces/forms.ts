@@ -5,14 +5,13 @@ import {
   UseFormResetField,
   UseFormWatch,
 } from "react-hook-form";
-import { z } from "zod";
 
-import { createPatientFormSchema } from "@/app/dashboard/createPatient/utils";
+import type { CreatePatientSchema } from "@/app/dashboard/createPatient/schema";
 
 export interface CreatePatientFormProps {
-  register: UseFormRegister<z.infer<typeof createPatientFormSchema>>;
-  formState: FormState<z.infer<typeof createPatientFormSchema>>;
-  control: Control<z.infer<typeof createPatientFormSchema>>;
-  watch: UseFormWatch<z.infer<typeof createPatientFormSchema>>;
-  resetField: UseFormResetField<z.infer<typeof createPatientFormSchema>>;
+  register: UseFormRegister<CreatePatientSchema>;
+  formState: FormState<CreatePatientSchema>;
+  control: Control<CreatePatientSchema>;
+  watch: UseFormWatch<CreatePatientSchema>;
+  resetField: UseFormResetField<CreatePatientSchema>;
 }
