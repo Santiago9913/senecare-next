@@ -16,7 +16,7 @@ async function queryFunction<T>({
   data,
 }: QueryProps): Promise<T> {
   try {
-    const response = await client({
+    const response = await client<T>({
       url: path,
       method,
       data,

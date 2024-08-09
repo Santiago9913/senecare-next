@@ -102,3 +102,17 @@ export interface SexualOrientation {
 export interface SexualOrientationList {
   Sexual_orientation: SexualOrientation[];
 }
+
+export interface Patient {
+  id: number;
+  first_name: string;
+  middle_name: string | null;
+  first_surname: string;
+  second_surname: string | null;
+  fk_type_document_number: number;
+  id_number: string;
+  birth_date: Date;
+  biological_sex: string;
+}
+
+export type PatientList = Patient[];
